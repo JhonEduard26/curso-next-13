@@ -1,15 +1,15 @@
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import Layout from '@/components/layouts/layout'
+import { type GetStaticProps } from 'next'
 
 export default function Home () {
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <h1 className="text-6xl font-semibold text-blue-700">
-        Hola mundo!
-        </h1>
-    </main>
+    <Layout title="Listado de Pokémon">
+    </Layout>
   )
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  return {
+    props: {}
+  }
 }
