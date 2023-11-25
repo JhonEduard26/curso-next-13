@@ -1,0 +1,106 @@
+import pokeApi from '@/api'
+import { type Pokemon } from '@/types'
+import { type GetStaticProps, type GetStaticPaths } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
+import clsx from 'clsx'
+import Layout from '@/components/layouts/layout'
+
+const bgTypes: Record<string, string> = {
+  normal: 'bg-gray-400',
+  fire: 'bg-red-500',
+  water: 'bg-blue-500',
+  electric: 'bg-yellow-500',
+  grass: 'bg-green-500',
+  ice: 'bg-blue-200',
+  fighting: 'bg-red-700',
+  poison: 'bg-purple-500',
+  ground: 'bg-yellow-700',
+  flying: 'bg-blue-300',
+  psychic: 'bg-pink-500',
+  bug: 'bg-green-700',
+  rock: 'bg-gray-700',
+  ghost: 'bg-purple-700',
+  dark: 'bg-gray-900',
+  dragon: 'bg-blue-900',
+  steel: 'bg-gray-500',
+  fairy: 'bg-pink-300'
+}
+
+export default function PokemonPage ({ pokemon }: { pokemon: Pokemon }) {
+  return (
+    <Layout title={pokemon.name}>
+      <Link href="/">
+        ⬅️ Volver
+      </Link>
+      <div className="max-w-sm mx-auto border bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="flex flex-col items-center">
+          <Image
+            className="mx-auto"
+            src={pokemon.sprites.other?.['official-artwork'].front_default ?? pokemon.sprites.front_default}
+            alt="Pokemon image"
+            width={200}
+            height={200}
+            style={{ aspectRatio: '1/1', objectFit: 'cover' }} />
+          <div className="mb-2">
+            <h3 className="uppercase tracking-wide text-indigo-500 font-semibold text-center">
+              {pokemon.name}
+            </h3>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="mb-2">
+              <span className="text-center">Tipo</span>
+            </div>
+            <div className="flex gap-2 mb-6 uppercase">
+              {
+                pokemon.types.map(({ type }) => (
+                  <div key={type.name} className={clsx(
+                    'text-white transition-colors px-2 py-1 rounded-full',
+                    {
+                      [bgTypes[type.name]]: bgTypes[type.name]
+                    }
+                  )}>
+                    <span key={type.name} className="px-2 py-1">
+                      {type.name}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+
+          <div className="mb-12">
+            <p>❤️ HP: <span className="font-semibold">{pokemon.stats[0].base_stat}</span></p>
+            <p>⚔️ Ataque: <span className="font-semibold"> {pokemon.stats[1].base_stat}</span></p>
+            <p>🛡️ Defensa:  <span className="font-semibold">{pokemon.stats[2].base_stat}</span></p>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  )
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const list = Array.from({ length: 151 }, (_, idx) => `${idx + 1}`)
+
+  const paths = list.map(id => ({
+    params: { id }
+  }))
+
+  return {
+    paths,
+    fallback: false
+  }
+}
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { id } = params as { id: string }
+
+  const { data } = await pokeApi.get<Pokemon>(`/pokemon/${id}`)
+
+  return {
+    props: {
+      pokemon: data
+    }
+  }
+}
