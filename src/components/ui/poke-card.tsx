@@ -20,7 +20,7 @@ export default function PokeCard ({ pokemon }: { pokemon: SmallPokemon }) {
           <div className="flex items-center justify-center p-2">
             <Link
               className="text-emerald-500 hover:text-emerald-700"
-              href={`/pokemon/${pokemon.id}`}
+              href={`/name/${pokemon.name}`}
             >
               Detalles
             </Link>

@@ -1,12 +1,11 @@
-import { Button } from '@nextui-org/react'
-import { type GetStaticProps, type GetStaticPaths } from 'next'
-import clsx from 'clsx'
-import Image from 'next/image'
-
-import { isFavorite, toggleFavorite } from '@/utils/localFavorites'
-import { type Pokemon } from '@/types'
-import Layout from '@/components/layouts/layout'
 import pokeApi from '@/api'
+import Layout from '@/components/layouts/layout'
+import { type PokemonListResponse, type Pokemon } from '@/types'
+import { isFavorite, toggleFavorite } from '@/utils/localFavorites'
+import { Button } from '@nextui-org/react'
+import clsx from 'clsx'
+import { type GetStaticPaths, type GetStaticProps } from 'next'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 const bgTypes: Record<string, string> = {
@@ -30,7 +29,7 @@ const bgTypes: Record<string, string> = {
   fairy: 'bg-pink-300'
 }
 
-export default function PokemonPage ({ pokemon }: { pokemon: Pokemon }) {
+export default function PokemonNamePage ({ pokemon }: { pokemon: Pokemon }) {
   const [isInFav, setIsInFav] = useState<boolean>(false)
 
   useEffect(() => {
@@ -105,10 +104,10 @@ export default function PokemonPage ({ pokemon }: { pokemon: Pokemon }) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const list = Array.from({ length: 151 }, (_, idx) => `${idx + 1}`)
+  const { data } = await pokeApi.get<PokemonListResponse>('pokemon?limit=151')
 
-  const paths = list.map(id => ({
-    params: { id }
+  const paths = data.results.map(({ name }) => ({
+    params: { name }
   }))
 
   return {
@@ -118,14 +117,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { id } = params as { id: string }
+  const { name } = params as { name: string }
 
-  const { data } = await pokeApi.get<Pokemon>(`/pokemon/${id}`)
+  const { data } = await pokeApi.get<Pokemon>(`/pokemon/${name}`)
 
   const pokemon = {
     id: data.id,
-    name: data.name,
     sprites: data.sprites,
+    name: data.name,
     types: data.types,
     stats: data.stats
   }
